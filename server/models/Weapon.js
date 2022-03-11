@@ -28,6 +28,13 @@ module.exports = (sequelize, DataTypes) => {
       tableName: 'weapons',
     }
   );
+    model.associate = (models) => {
+      model.belongsTo(models.Bill, {
+        foreignKey: 'BillId',
+        constraints: false,
+        as: 'Weapons',
+      });
+    };
 
   return model;
 };

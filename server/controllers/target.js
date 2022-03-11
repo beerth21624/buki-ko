@@ -17,7 +17,7 @@ const createTarget = async (req, res) => {
 
 const getAllTarget = async (req, res) => {
   try {
-    let limit = 2;
+    let limit = 8;
     let offset = 0 + (req.query.page - 1) * limit;
     const search = req.query.search;
     if (search) {

@@ -9,6 +9,8 @@ class Auth {
   isAuthenticated() {
     let userData = this.getUserData();
     let token = this.getToken();
+    console.log('111', token);
+    console.log('222', userData);
     return token && userData?.id;
   }
   signIn(token, userData) {

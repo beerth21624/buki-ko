@@ -6,10 +6,22 @@ import auth from '../utilis/authen';
 export class AuthStore extends BaseStore {
   constructor() {
     super();
-    this.observable({});
+    this.observable({
+      loginFail:false
+    });
   }
-  async fetchRegister() {
+  async fetchRegister(formData) {
+    console.log('step2', FormData);
     try {
+      const { data } = await axios.post(`${API_URL}/auth/register`, {
+        name: formData.name,
+        rank: formData.rank,
+        username: formData.username,
+        password: formData.password,
+      });
+      if (data) {
+        return 'success';
+      }
     } catch (error) {
       throw error;
     }
@@ -20,9 +32,14 @@ export class AuthStore extends BaseStore {
         username: formData.username,
         password: formData.password,
       });
-      auth.signIn(data.token, data.user);
+      console.log('loggin', data);
+      if (data === 'validate') {
+        return 'validate';
+      }
+
+      auth.signIn(data.token, data.userData);
     } catch (error) {
-      throw error;
+          return 'fail';
     }
   }
 }

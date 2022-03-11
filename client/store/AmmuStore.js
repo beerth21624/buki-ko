@@ -32,7 +32,7 @@ export class AmmuStore extends BaseStore {
         `${API_URL}/ammu/getallammu?page=${page}&search=${search}`
       );
       this.allAmmu = data.ammuData.rows;
-      this.ammuPageCount = Math.ceil(data.ammuData.count / 2);
+      this.ammuPageCount = Math.ceil(data.ammuData.count / 8);
       if (data) {
         return 'success';
       }
@@ -66,6 +66,14 @@ export class AmmuStore extends BaseStore {
         `${API_URL}/ammu/delete?ammuLot=${number}`
       );
       if (data) return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+  async createAmmuBill(dataForm) {
+    try {
+      const { data } = await axios.post(`${API_URL}/subbill/create`, dataForm);
+      return data;
     } catch (err) {
       throw err;
     }

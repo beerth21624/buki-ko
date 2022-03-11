@@ -160,7 +160,7 @@ const AddWeapon = (props) => {
                   background: `url(${gunImage})`,
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
-                  backgroundSize: 'cover',
+                  backgroundSize: 'contain',
                 }}
                 variant="outlined"
               ></CustomizeImg>

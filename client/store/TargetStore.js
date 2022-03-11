@@ -30,7 +30,7 @@ export class TargetStore extends BaseStore {
         `${API_URL}/target/getalltarget?page=${page}&search=${search}`
       );
       this.allTarget = data.targetData.rows;
-      this.targetPageCount = Math.ceil(data.targetData.count / 2);
+      this.targetPageCount = Math.ceil(data.targetData.count / 8);
       if (data) {
         return 'success';
       }
@@ -64,6 +64,14 @@ export class TargetStore extends BaseStore {
         `${API_URL}/target/delete?targetBill=${number}`
       );
       if (data) return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+  async createTargetBill(dataForm) {
+    try {
+      const { data } = await axios.post(`${API_URL}/subbill/create`, dataForm);
+      return data;
     } catch (err) {
       throw err;
     }

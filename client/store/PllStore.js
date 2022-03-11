@@ -29,7 +29,7 @@ export class PllStore extends BaseStore {
         `${API_URL}/pll/getallpll?page=${page}&search=${search}`
       );
       this.allPll = data.pllData.rows;
-      this.pllPageCount = Math.ceil(data.pllData.count / 2);
+      this.pllPageCount = Math.ceil(data.pllData.count / 8);
       if (data) {
         return 'success';
       }
@@ -63,6 +63,14 @@ export class PllStore extends BaseStore {
         `${API_URL}/pll/delete?pllNumber=${number}`
       );
       if (data) return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+  async createPllBill(dataForm) {
+    try {
+      const { data } = await axios.post(`${API_URL}/subbill/create`, dataForm);
+      return data;
     } catch (err) {
       throw err;
     }

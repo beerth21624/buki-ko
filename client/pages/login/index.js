@@ -15,6 +15,13 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { observer, inject } from 'mobx-react';
 import Link from 'next/link';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import { useRouter } from 'next/router';
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const CustomizedContainer = styled('div')`
   background-image: url('https://images.pexels.com/photos/889709/pexels-photo-889709.jpeg?cs=srgb&dl=pexels-specna-arms-889709.jpg&fm=jpg');
@@ -48,6 +55,13 @@ function Copyright(props) {
 const theme = createTheme();
 
 const Login = (props) => {
+  const router = useRouter();
+  const [userAleart, setUserAleart] = React.useState(false);
+  const [failAleart, setFailAleart] = React.useState(false);
+
+  React.useEffect(() => {
+    setUserAleart(false);
+  }, []);
   const {
     register,
     handleSubmit,
@@ -66,9 +80,17 @@ const Login = (props) => {
     ),
   });
   console.log(errors);
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
-    props.authStore.fetchLogin(data);
+    const success = await props.authStore.fetchLogin(data);
+    console.log('loggg', success);
+    if (success === 'validate') {
+      setUserAleart(true);
+    } else if (success === 'fail') {
+      setFailAleart(true);
+    } else {
+      router.push('/home');
+    }
   };
   return (
     <CustomizedContainer>
@@ -85,6 +107,16 @@ const Login = (props) => {
               borderRadius: '20px',
             }}
           >
+            {userAleart && (
+              <Alert severity="warning" sx={{ marginBottom: '20px' }}>
+                บัญชีของคุณอยู่ระหว่างการตรวจสอบ
+              </Alert>
+            )}
+            {failAleart && (
+              <Alert severity="warning" sx={{ marginBottom: '20px' }}>
+                โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่าน
+              </Alert>
+            )}
             <Typography component="h1" variant="h5">
               ระบบบริหารคลังอาวุธ
             </Typography>
@@ -101,7 +133,6 @@ const Login = (props) => {
                 id="username"
                 label="username"
                 name="username"
-                autoComplete="username"
                 {...register('username')}
                 autoFocus
               />
@@ -118,7 +149,6 @@ const Login = (props) => {
                 label="Password"
                 type="password"
                 id="password"
-                autoComplete="current-password"
                 {...register('password')}
               />
               {errors.password && (

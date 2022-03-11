@@ -19,6 +19,7 @@ export class WeaponStore extends BaseStore {
   }
 
   async createWeapon(dataForm) {
+    console.log(dataForm)
     try {
       const { data } = await axios.post(`${API_URL}/weapon/create`, dataForm);
       return data;
@@ -41,7 +42,7 @@ export class WeaponStore extends BaseStore {
         `${API_URL}/weapon/getallweapon?page=${page}&status=${type}&search=${search}`
       );
       this.allWeapon = data.weaponData.rows;
-      this.weaponPageCount = Math.ceil(data.weaponData.count / 2);
+      this.weaponPageCount = Math.ceil(data.weaponData.count / 8);
       if (data) {
         return 'success';
       }
@@ -80,6 +81,7 @@ export class WeaponStore extends BaseStore {
       throw err;
     }
   }
+
 }
 
 export default new WeaponStore();

@@ -8,6 +8,7 @@ const {
   getWeaponBill,
   updateWeapon,
   deleteWeapon,
+  getCount,
 } = require('../controllers/weapon');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -31,5 +32,7 @@ router.post('/update', upload.single('gunImage'), updateWeapon);
 router.route('/getallweapon').get(getAllWeapon);
 router.route('/getweapon').get(getWeaponBill);
 router.route('/delete').delete(deleteWeapon);
+router.route('/getcount').get(getCount);
+
 
 module.exports = router;

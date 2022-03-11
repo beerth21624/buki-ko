@@ -5,18 +5,16 @@ module.exports = (sequelize, DataTypes) => {
       billNumber: {
         type: DataTypes.STRING,
       },
-      AgencyName: {
+      agencyName: {
         type: DataTypes.STRING,
       },
-      NameRecipient: {
+      nameRecipient: {
         type: DataTypes.STRING,
       },
-      NameApprover: {
+      nameApprover: {
         type: DataTypes.STRING,
       },
-      listBillId: {
-        type: DataTypes.STRING,
-      },
+
       billNote: {
         type: DataTypes.STRING,
       },
@@ -25,6 +23,13 @@ module.exports = (sequelize, DataTypes) => {
       tableName: 'bills',
     }
   );
+  model.associate = (models) => {
+    model.hasMany(models.Weapon, {
+      foreignKey: 'BillId',
+      constraints: false,
+      as: 'Bills',
+    });
+  };
 
   return model;
 };

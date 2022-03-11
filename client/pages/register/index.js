@@ -13,6 +13,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { observer, inject } from 'mobx-react';
+import { useRouter } from 'next/router';
 
 const CustomizedContainer = styled('div')`
   background-image: url('https://images.pexels.com/photos/886454/pexels-photo-886454.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
@@ -45,15 +50,32 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignUp() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+function Register(props) {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: 'onBlur',
+    resolver: yupResolver(
+      yup.object().shape({
+        name: yup.string().required('โปรดกรอกยศ-ชื่อ'),
+        rank: yup.string().required('โปรดกรอกตำแหน่ง'),
+        username: yup.string().required('โปรดกรอกชื่อผู้ใช้'),
+        password: yup
+          .string()
+          .required('โปรดกรอกรหัสผ่าน')
+          .matches(
+            /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+            'รหัสผ่านต้อง มากกว่า8ตัว และประกอบด้วย ตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก และอักษรพิเศษ'
+          ),
+      })
+    ),
+  });
+  const handleRegister = async (data) => {
+    const resault = await props.authStore.fetchRegister(data);
+    resault && router.push('/login');
   };
 
   return (
@@ -81,7 +103,7 @@ export default function SignUp() {
             <Box
               component="form"
               noValidate
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(handleRegister)}
               sx={{ mt: 3 }}
             >
               <Grid container spacing={2}>
@@ -93,7 +115,11 @@ export default function SignUp() {
                     id="name"
                     label="ยศ-ชื่อ"
                     autoFocus
+                    {...register('name')}
                   />
+                  {errors.name && (
+                    <Typography color="error">{errors.name.message}</Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -102,7 +128,11 @@ export default function SignUp() {
                     id="rank"
                     label="ตำแหน่ง"
                     name="rank"
+                    {...register('rank')}
                   />
+                  {errors.rank && (
+                    <Typography color="error">{errors.rank.message}</Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -112,7 +142,13 @@ export default function SignUp() {
                     label="username"
                     name="username"
                     autoComplete="username"
+                    {...register('username')}
                   />
+                  {errors.username && (
+                    <Typography color="error">
+                      {errors.username.message}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -123,7 +159,13 @@ export default function SignUp() {
                     type="password"
                     id="password"
                     autoComplete="new-password"
+                    {...register('password')}
                   />
+                  {errors.password && (
+                    <Typography color="error">
+                      {errors.password.message}
+                    </Typography>
+                  )}
                 </Grid>
               </Grid>
               <Button
@@ -136,7 +178,7 @@ export default function SignUp() {
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link href="/login" variant="body2">
                     มีบัญชีอยู่แล้ว เข้าสู่ระบบ
                   </Link>
                 </Grid>
@@ -149,3 +191,5 @@ export default function SignUp() {
     </CustomizedContainer>
   );
 }
+
+export default inject('authStore')(observer(Register));

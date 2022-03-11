@@ -50,7 +50,7 @@ const deleteAmmu = async (req, res) => {
 
 const getAllAmmu = async (req, res) => {
   try {
-    let limit = 2;
+    let limit = 8;
     let offset = 0 + (req.query.page - 1) * limit;
     const search = req.query.search;
     if (search) {
@@ -89,10 +89,24 @@ const getAmmu = async (req, res) => {
     res.status(500).json(err);
   }
 };
+const getCount = async (req, res) => {
+  try {
+    let resault = 0;
+    const data = await db.Ammu.findAll();
+    data.map((ammu) => {
+      resault += ammu.ammuQty;
+    });
+
+    res.status(200).json(resault);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
 module.exports = {
   createAmmu,
   updateAmmu,
   deleteAmmu,
   getAllAmmu,
   getAmmu,
+  getCount,
 };

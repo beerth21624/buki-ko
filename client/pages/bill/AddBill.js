@@ -16,6 +16,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2';
+import { useRouter } from 'next/router';
 const CustomizeInput = styled(TextField)`
   width: 60%;
   height: ;
@@ -27,13 +28,18 @@ const CustomizeTextArea = styled('textarea')`
 `;
 
 const AddBill = (props) => {
+  const router = useRouter();
   const { allWeapon, weaponPageCount, Weapon } = props.weaponStore.toJS();
   const [allCart, setAllCart] = useState([]);
   const [weaponShow, setWeaponShow] = useState([]);
   const [loadding, setLoadding] = useState(false);
   const [searchText, setSearchText] = useState('');
-
-  console.log('show', weaponShow);
+  const [openButton, setOpenButton] = useState(false);
+  //  useEffect(() => {
+  //    if (!Weapon) {
+  //      setOpenButton(false);
+  //    }
+  //  }, [Weapon]);
 
   const {
     register,
@@ -67,10 +73,34 @@ const AddBill = (props) => {
       ...data,
       cartList: allCart,
     };
-    console.log(output);
+
+    Swal.fire({
+      title: 'บันทึกรายการ ?',
+      text: 'คุณต้องการบันทึกรายการใช่หรือไม่',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2e7d32',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'บันทึก',
+      cancelButtonText: 'ยกเลิก',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const success = props.billStore.createBill(output);
+        if (success) {
+          Swal.fire('สำเร็จ!', 'บันทึกรายการเรียบร้อย', 'success');
+          router.push('/bill');
+          // props.billStore.setCreateSuccess();
+        }
+      }
+    });
   };
 
   const searchGun = () => {
+    if (searchText) {
+      setOpenButton(true);
+    } else {
+      setOpenButton(false);
+    }
     props.weaponStore.getWeapon(searchText);
   };
 
@@ -274,7 +304,7 @@ const AddBill = (props) => {
                           </TableCell>
 
                           <TableCell align="center">
-                            {Weapon?.gunNumber && (
+                            {openButton && (
                               <Button
                                 variant="contained"
                                 onClick={() => addToCart()}
@@ -317,7 +347,9 @@ const AddBill = (props) => {
                   {allCart.map((row, index) => (
                     <TableRow
                       key={index}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      sx={{
+                        '&:last-child td, &:last-child th': { border: 0 },
+                      }}
                     >
                       <TableCell align="center">{row.gunName}</TableCell>
                       <TableCell align="center">{row.gunNumber}</TableCell>
@@ -358,4 +390,4 @@ const AddBill = (props) => {
   );
 };
 
-export default inject('weaponStore')(observer(AddBill));
+export default inject('billStore', 'weaponStore')(observer(AddBill));

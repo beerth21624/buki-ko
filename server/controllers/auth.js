@@ -3,8 +3,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const createUser = async (req, res) => {
+  console.log('step33333333', req.body);
   const { name, rank, username, password } = req.body;
-  console.log(name);
+  console.log('fdsffsd', name);
 
   try {
     const validateUser = await db.User.findOne({ where: { username } });
@@ -35,20 +36,31 @@ const userLogin = async (req, res) => {
 
     const user = await db.User.findOne({ where: { username } });
     !user && res.status(500).json('Invalid credentials , please sign up');
-    console.log(user);
 
     const isMatch = await bcrypt.compare(password, user.password);
     !isMatch && res.status(500).json('invalid password');
     console.log('sss', process.env.JWT_SECRET);
-    const token = await jwt.sign(
-      { username: user.username, password: user.password },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: process.env.JWT_EXPIRE,
-      }
-    );
-    console.log(token);
-    res.status(200).json({ success: true, token });
+    console.log('vaaaalidateeeee', user.validated);
+    if (user.validated == false) {
+      res.status(200).json('validate');
+    } else {
+      const token = await jwt.sign(
+        { username: user.username, password: user.password },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_EXPIRE,
+        }
+      );
+      const data = {
+        id: user.id,
+        username: user.username,
+        rank: user.rank,
+        validated: user.validateduser,
+        role: user.role,
+      };
+      console.log(token);
+      res.status(200).json({ success: true, token, userData: data });
+    }
   } catch (err) {
     res.status(500).json(err);
   }

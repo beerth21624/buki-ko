@@ -5,6 +5,8 @@ const createWeapon = async (req, res) => {
     req.body;
 
   const { filename } = req.file;
+  console.log('dreewawf', req.body);
+  console.log('dreewawfile', req.file);
   try {
     const weapon = await db.Weapon.create({
       gunName,
@@ -24,7 +26,7 @@ const createWeapon = async (req, res) => {
 
 const getAllWeapon = async (req, res) => {
   try {
-    let limit = 2;
+    let limit = 8;
     let offset = 0 + (req.query.page - 1) * limit;
     const status = req.query.status;
     const search = req.query.search;
@@ -89,6 +91,7 @@ const updateWeapon = async (req, res) => {
           gunBill,
           gunNote,
           gunImage: filename,
+          BillId: '',
         },
         { where: { gunNumber } }
       );
@@ -140,10 +143,31 @@ const deleteWeapon = async (req, res) => {
     res.status(500).json(err);
   }
 };
+const getCount = async (req, res) => {
+  try {
+    const data = await db.Weapon.findAll();
+    const readyGun = data.filter((gun) => gun.gunStatus == 'พร้อมใช้งาน');
+    const fixGun = data.filter((gun) => gun.gunStatus == 'ส่งซ่อม');
+    const outGun = data.filter((gun) => gun.gunStatus == 'รอส่งคืน');
+    const billGun = data.filter((gun) => gun.gunStatus == 'เบิก-จ่าย');
+
+    res.status(200).json({
+      all: data.length,
+      ready: readyGun.length,
+      fix: fixGun.length,
+      out: outGun.length,
+      bill: billGun.length,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 module.exports = {
   createWeapon,
   getAllWeapon,
   getWeaponBill,
   updateWeapon,
   deleteWeapon,
+  getCount,
 };

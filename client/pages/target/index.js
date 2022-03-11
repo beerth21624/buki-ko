@@ -17,6 +17,8 @@ import TableRow from '@mui/material/TableRow';
 import { observer, inject } from 'mobx-react';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import auth from '../../utilis/authen';
+import Swal from 'sweetalert2';
 
 const CustomizeContainer = styled(Box)`
   display: flex;
@@ -40,6 +42,13 @@ const Target = (props) => {
   const [updataShow, setUpdataShow] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [paginationStart, setPaginationStart] = useState(false);
+
+  const [userRole, setUserRole] = useState('');
+
+  useEffect(() => {
+    const user = auth.getUserData();
+    setUserRole(user?.role);
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       await props.targetStore.getAllTarget(page, '');
@@ -65,6 +74,9 @@ const Target = (props) => {
     if (event === 'Enter') {
       filterSearch();
     }
+  };
+  const validateRole = () => {
+    Swal.fire('ไม่มีสิทธ์', 'คุณต้องมีสิทธิ์ระดับจัดการขึ้นไป', 'error');
   };
   return (
     <Layout>
@@ -98,11 +110,19 @@ const Target = (props) => {
               รายการเป้า
             </Typography>
           </Box>
-          <Link href="/target/AddTarget">
-            <Button size="small" variant="contained">
-              เพิ่มรายการเป้า
-            </Button>
-          </Link>
+          {userRole === 'ผู้ใช้' ? (
+            <Link href="/target/AddTarget">
+              <Button disabled size="small" variant="contained">
+                เพิ่มรายการเป้า
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/target/AddTarget">
+              <Button size="small" variant="contained">
+                เพิ่มรายการเป้า
+              </Button>
+            </Link>
+          )}
         </Box>
         <Box
           sx={{
@@ -174,14 +194,43 @@ const Target = (props) => {
                             gap: '10px',
                           }}
                         >
-                          <Link href={`/target/${row.targetBill}`}>
-                            <Button color="warning" variant="contained">
-                              แก้ไข
-                            </Button>
-                          </Link>
-                          <Button color="warning" variant="contained">
-                            เบิกจ่าย
-                          </Button>
+                          {userRole === 'ผู้ใช้' ? (
+                            <>
+                              {' '}
+                              <Link href={`/target/${row.targetBill}`}>
+                                <Button
+                                  disabled
+                                  color="warning"
+                                  variant="contained"
+                                >
+                                  แก้ไข
+                                </Button>
+                              </Link>
+                              <Link href={`/target/bill/${row.targetBill}`}>
+                                <Button
+                                  disabled
+                                  color="warning"
+                                  variant="contained"
+                                >
+                                  เบิกจ่าย
+                                </Button>
+                              </Link>
+                            </>
+                          ) : (
+                            <>
+                              {' '}
+                              <Link href={`/target/${row.targetBill}`}>
+                                <Button color="warning" variant="contained">
+                                  แก้ไข
+                                </Button>
+                              </Link>
+                              <Link href={`/target/bill/${row.targetBill}`}>
+                                <Button color="warning" variant="contained">
+                                  เบิกจ่าย
+                                </Button>
+                              </Link>
+                            </>
+                          )}
                         </Box>
                       </TableCell>
                     </TableRow>

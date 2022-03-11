@@ -18,6 +18,8 @@ import TableRow from '@mui/material/TableRow';
 import { observer, inject } from 'mobx-react';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import auth from '../../utilis/authen';
+import Swal from 'sweetalert2';
 
 const CustomizeContainer = styled(Box)`
   display: flex;
@@ -39,6 +41,12 @@ const Pll = (props) => {
   const [updataShow, setUpdataShow] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [paginationStart, setPaginationStart] = useState(false);
+  const [userRole, setUserRole] = useState('');
+
+  useEffect(() => {
+    const user = auth.getUserData();
+    setUserRole(user?.role);
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       await props.pllStore.getAllPll(page, '');
@@ -64,6 +72,9 @@ const Pll = (props) => {
     if (event === 'Enter') {
       filterSearch();
     }
+  };
+  const validateRole = () => {
+    Swal.fire('ไม่มีสิทธ์', 'คุณต้องมีสิทธิ์ระดับจัดการขึ้นไป', 'error');
   };
   return (
     <Layout>
@@ -97,11 +108,19 @@ const Pll = (props) => {
               รายการชิ้นส่วนซ่อม
             </Typography>
           </Box>
-          <Link href="/pll/AddPll">
-            <Button size="small" variant="contained">
-              เพิ่มรายการชิ้นส่วนซ่อม
-            </Button>
-          </Link>
+          {userRole === 'ผู้ใช้' ? (
+            <Link href="/pll/AddPll">
+              <Button disabled size="small" variant="contained">
+                เพิ่มรายการชิ้นส่วนซ่อม
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/pll/AddPll">
+              <Button size="small" variant="contained">
+                เพิ่มรายการชิ้นส่วนซ่อม
+              </Button>
+            </Link>
+          )}
         </Box>
         <Box
           sx={{
@@ -175,14 +194,43 @@ const Pll = (props) => {
                             gap: '10px',
                           }}
                         >
-                          <Link href={`/pll/${row.pllNumber}`}>
-                            <Button color="warning" variant="contained">
-                              แก้ไข
-                            </Button>
-                          </Link>
-                          <Button color="warning" variant="contained">
-                            เบิกจ่าย
-                          </Button>
+                          {userRole === 'ผู้ใช้' ? (
+                            <>
+                              {' '}
+                              <Link href={`/pll/${row.pllNumber}`}>
+                                <Button
+                                  disabled
+                                  color="warning"
+                                  variant="contained"
+                                >
+                                  แก้ไข
+                                </Button>
+                              </Link>
+                              <Link href={`/pll/bill/${row.pllNumber}`}>
+                                <Button
+                                  disabled
+                                  color="warning"
+                                  variant="contained"
+                                >
+                                  เบิกจ่าย
+                                </Button>
+                              </Link>
+                            </>
+                          ) : (
+                            <>
+                              {' '}
+                              <Link href={`/pll/${row.pllNumber}`}>
+                                <Button color="warning" variant="contained">
+                                  แก้ไข
+                                </Button>
+                              </Link>
+                              <Link href={`/pll/bill/${row.pllNumber}`}>
+                                <Button color="warning" variant="contained">
+                                  เบิกจ่าย
+                                </Button>
+                              </Link>
+                            </>
+                          )}
                         </Box>
                       </TableCell>
                     </TableRow>

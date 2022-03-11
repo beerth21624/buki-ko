@@ -12,7 +12,8 @@ import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import Router from 'next/router';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import auth from '../../utilis/authen';
+import Swal from 'sweetalert2';
 const CustomizeContainer = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -37,6 +38,13 @@ const Weapon = (props) => {
   const [paginationStart, setPaginationStart] = useState(false);
   const [pageStatus, setPageStatus] = useState('');
   const [loadding, setLoading] = useState('false');
+
+  const [userRole, setUserRole] = useState('');
+
+  useEffect(() => {
+    const user = auth.getUserData();
+    setUserRole(user?.role);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,18 +86,23 @@ const Weapon = (props) => {
     const resault = await props.weaponStore.getAllWeapon(1, status);
     setPageStatus(status);
   };
+
+  const validateRole = () => {
+    Swal.fire('ไม่มีสิทธ์', 'คุณต้องมีสิทธิ์ระดับจัดการขึ้นไป', 'error');
+  };
   return (
-    <Layout>
+    <Layout sx={{ overflow: 'hidden' }}>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           width: '78vw',
-          minHeight: '88vh',
+          // minHeight: '80vh',
           borderRadius: '8px',
           position: 'relative',
           left: '1vw',
-          top: '2vh',
+          // top: '2vh',
+          marginTop: '2vh',
           border: '2px solid #E7E7E7',
         }}
       >
@@ -110,11 +123,19 @@ const Weapon = (props) => {
               รายการอาวุธปืน
             </Typography>
           </Box>
-          <Link href="/weapon/AddWeapon">
-            <Button size="small" variant="contained">
-              เพิ่มรายการอาวุธ
-            </Button>
-          </Link>
+          {userRole === 'ผู้ใช้' ? (
+            <Link href="/weapon/AddWeapon">
+              <Button disabled size="small" variant="contained">
+                เพิ่มรายการอาวุธ
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/weapon/AddWeapon">
+              <Button size="small" variant="contained">
+                เพิ่มรายการอาวุธ
+              </Button>
+            </Link>
+          )}
         </Box>
 
         <Box
@@ -193,13 +214,9 @@ const Weapon = (props) => {
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
+              paddingBottom: '10px',
             }}
           >
-            <Box sx={{ padding: '20px' }}>
-              {/* <Link href="/weapon/AddWeapon">
-              <Button variant="contained">เพิ่มรายการอาวุธ</Button>
-            </Link> */}
-            </Box>
             <Box
               sx={{
                 display: 'flex',
@@ -271,9 +288,17 @@ const Weapon = (props) => {
                     <Typography>สถานที่จัดเก็บ: {gun.gunStore}</Typography>
                     <Typography>ใบเบิก: {gun.gunBill}</Typography>
                     <Typography>หมายเหตุ: {gun.gunNote}</Typography>
-                    <Link href={`/weapon/${gun.gunNumber}`}>
-                      <Button variant="contained">แก้ไขรายละเอียด</Button>
-                    </Link>
+                    {userRole === 'ผู้ใช้' ? (
+                      <Link href={`/weapon/${gun.gunNumber}`}>
+                        <Button disabled variant="contained">
+                          แก้ไขรายละเอียด
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link href={`/weapon/${gun.gunNumber}`}>
+                        <Button variant="contained">แก้ไขรายละเอียด</Button>
+                      </Link>
+                    )}
                   </Box>
                 </CustomizeContainer>
               ))}
